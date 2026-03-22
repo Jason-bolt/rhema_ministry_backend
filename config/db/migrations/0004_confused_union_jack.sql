@@ -1,0 +1,1 @@
+ALTER TABLE "sermons" ALTER COLUMN "resource_url" SET NOT NULL;
