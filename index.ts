@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import router from "./src/routes";
-// import "./config/queue/worker";
+import "./config/queue/worker";
 import { Request, Response } from "express";
 import envs from "./config/envs";
 

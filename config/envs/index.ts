@@ -14,6 +14,7 @@ interface EnvVariables {
   REDIS_URL: string;
   JWT_SECRET: string;
   JWT_TOKEN_EXPIRY: string;
+  ADMIN_EMAIL_ADDRESS: string;
 }
 
 const envs: EnvVariables = {
@@ -30,6 +31,7 @@ const envs: EnvVariables = {
   REDIS_URL: process.env.REDIS_URL || "",
   JWT_SECRET: process.env.JWT_SECRET || "",
   JWT_TOKEN_EXPIRY: process.env.JWT_TOKEN_EXPIRY || "",
+  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "",
 };
 
 export default envs;

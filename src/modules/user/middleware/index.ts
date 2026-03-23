@@ -81,7 +81,6 @@ class UserMiddleware implements IMiddleware {
   }
 
   async validateLoginUser(req: Request, res: Response, next: NextFunction) {
-    console.log(req.body);
     const { email: passedEmail, password: passedPassword } =
       req.body as unknown as Pick<ICreateUser, "email" | "password">;
 
