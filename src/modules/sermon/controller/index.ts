@@ -89,7 +89,7 @@ class SermonController implements IController {
       );
       const sermon = await this.service.update(sermonId, req.body);
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
         message: "Sermon updated successfully",
         data: sermon,
@@ -112,7 +112,7 @@ class SermonController implements IController {
       logger.info(`Sermon id: ${sermonId}`);
       await this.service.delete(sermonId);
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
         message: "Sermon deleted successfully",
         data: null,

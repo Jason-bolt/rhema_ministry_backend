@@ -38,9 +38,9 @@ class UserService implements IService {
 
   async loginUser(email: string) {
     let userData: IUser | null = null;
-    userData = await getRedisData(email);
+    const cachedUsers = await getRedisData(`users:email:${email}`);
 
-    if (!userData) {
+    if (!cachedUsers) {
       const user = await db
         .select()
         .from(usersTable)
@@ -49,6 +49,8 @@ class UserService implements IService {
 
       await setRedisData(`users:email:${email}`, user);
       userData = camelize(user[0]);
+    } else {
+      userData = camelize(cachedUsers[0]);
     }
 
     const tokenData = {

@@ -31,7 +31,14 @@ class GeneralController implements IController {
         data: {},
       });
     } catch (error: any) {
-      throw new Error("Failed to save contact form");
+      return res.status(500).json({
+        success: false,
+        message: `Failed to save contact form: ${error.message}`,
+        error: {
+          message: error.message,
+          stack: error.stack,
+        },
+      });
     }
   };
 

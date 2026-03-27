@@ -4,8 +4,6 @@ import { contactFormSchema } from "../../../../config/zod/schemas/general";
 
 class GeneralMiddleware implements IMiddleware {
   async validateContactForm(req: Request, res: Response, next: NextFunction) {
-    console.log(req.body);
-
     const validationResult = contactFormSchema.safeParse(req.body);
     if (!validationResult.success) {
       return res.status(400).json({

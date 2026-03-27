@@ -95,7 +95,7 @@ class UserMiddleware implements IMiddleware {
     }
 
     let userData: IUser | null = null;
-    const redisData = await getRedisData(email);
+    const redisData = await getRedisData(`users:email:${email}`);
     if (!redisData) {
       const user = await db
         .select()
@@ -103,8 +103,12 @@ class UserMiddleware implements IMiddleware {
         .where(eq(usersTable.email, email))
         .limit(1);
 
-      await setRedisData(`users:email:${email}`, user);
-      userData = camelize(user[0]);
+      if (user[0]) {
+        await setRedisData(`users:email:${email}`, user);
+        userData = camelize(user[0]);
+      }
+    } else {
+      userData = redisData[0] ? camelize(redisData[0]) : null;
     }
 
     logger.info(`Existing user: ${JSON.stringify(userData)}`);
@@ -148,7 +152,7 @@ class UserMiddleware implements IMiddleware {
 
     logger.info(`Existing user: ${JSON.stringify(user)}`);
 
-    if (!user) {
+    if (!user[0]) {
       return res.status(400).json({
         success: false,
         message: "User does not exist!",

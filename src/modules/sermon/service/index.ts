@@ -52,7 +52,7 @@ class SermonService implements IService {
 
       return camelize(sermons);
     } catch (error) {
-      throw new Error("Failed to get sermons count");
+      throw new Error("Failed to get sermons");
     }
   }
 
