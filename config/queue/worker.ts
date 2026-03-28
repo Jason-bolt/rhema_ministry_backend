@@ -1,17 +1,15 @@
 // worker.js
 import { Worker } from "bullmq";
 import "dotenv/config";
+import Redis from "ioredis";
 import processSendEmail from "./processSendEmail";
 import { QueueEvents } from "bullmq";
 import logger from "../../utils/logger";
+import envs from "../envs";
+
+const connection = new Redis(envs.REDIS_URL, { maxRetriesPerRequest: null });
 
 const queueEvents = new QueueEvents("app-queue");
-
-const connection = {
-  host: process.env.REDIS_HOST || "localhost",
-  port: parseInt(process.env.REDIS_PORT || "6379"),
-  // password: process.env.REDIS_PASSWORD // if needed
-};
 
 const worker = new Worker(
   "app-queue",
