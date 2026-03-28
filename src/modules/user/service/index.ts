@@ -68,11 +68,9 @@ class UserService implements IService {
 
   async initiatePasswordReset(email: string) {
     let userData: IUser | null = null;
-    userData = await getRedisData(`users:email:${email}`);
+    const cachedUsers = await getRedisData(`users:email:${email}`);
 
-    console.log("Redis Data", userData);
-
-    if (!userData) {
+    if (!cachedUsers) {
       const user = await db
         .select()
         .from(usersTable)
@@ -81,7 +79,8 @@ class UserService implements IService {
 
       await setRedisData(`users:email:${email}`, user);
       userData = camelize(user[0]);
-      console.log("No redis data", userData);
+    } else {
+      userData = camelize(cachedUsers[0]);
     }
 
     const now = Date.now();
