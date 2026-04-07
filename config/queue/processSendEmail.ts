@@ -1,36 +1,35 @@
 import "dotenv/config";
-import nodemailer from "nodemailer";
-import { Transporter } from "nodemailer";
+import Mailgun from "mailgun.js";
+import FormData from "form-data";
 import logger from "../../utils/logger";
 
-// Configure email transporter
-const transporter: Transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT || "587"),
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
-  
-const processSendEmail = async (job: any) => {
-    const { to, subject, text, html } = job.data;
+const mailgun = new Mailgun(FormData);
+const mg = mailgun.client({
+  username: "api",
+  key: process.env.MAILGUN_API_KEY || "",
+});
 
-    try {
-      const info = await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to,
-        subject,
-        text,
-        html,
-      });
-  
-      logger.info(`Email sent: ${JSON.stringify(info)}`);
-      return { success: true, messageId: info.messageId };
-    } catch (error) {
-      logger.error(`Failed to send email: ${JSON.stringify(error)}`);
-      throw error; // Job will be retried
-    }
+const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN || "";
+const FROM_ADDRESS = `Eternal Rhema Life Ministries <noreply@${MAILGUN_DOMAIN}>`;
+
+const processSendEmail = async (job: any) => {
+  const { to, subject, text, html } = job.data;
+
+  try {
+    const result = await mg.messages.create(MAILGUN_DOMAIN, {
+      from: FROM_ADDRESS,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      text,
+      html,
+    });
+
+    logger.info(`Email sent via Mailgun: ${JSON.stringify(result)}`);
+    return { success: true, id: result.id };
+  } catch (error) {
+    logger.error(`Failed to send email via Mailgun: ${JSON.stringify(error)}`);
+    throw error;
+  }
 };
 
 export default processSendEmail;

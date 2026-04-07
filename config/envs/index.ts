@@ -15,6 +15,8 @@ interface EnvVariables {
   JWT_SECRET: string;
   JWT_TOKEN_EXPIRY: string;
   ADMIN_EMAIL_ADDRESS: string;
+  MAILGUN_API_KEY: string;
+  MAILGUN_DOMAIN: string;
 }
 
 const envs: EnvVariables = {
@@ -32,6 +34,8 @@ const envs: EnvVariables = {
   JWT_SECRET: process.env.JWT_SECRET || "",
   JWT_TOKEN_EXPIRY: process.env.JWT_TOKEN_EXPIRY || "",
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "",
+  MAILGUN_API_KEY: process.env.MAILGUN_API_KEY || "",
+  MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN || "",
 };
 
 export default envs;

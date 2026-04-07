@@ -43,6 +43,13 @@
       "when": 1774305943820,
       "tag": "0005_familiar_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775574324108,
+      "tag": "0006_dapper_the_phantom",
+      "breakpoints": true
     }
   ]
 }

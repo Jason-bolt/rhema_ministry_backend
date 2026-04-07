@@ -83,46 +83,69 @@ class UserService implements IService {
       userData = camelize(cachedUsers[0]);
     }
 
-    const now = Date.now();
-    const resetPasswordToken = jwt.sign(
-      {
-        email: userData?.email,
-        timestamp: now,
-      },
-      envs.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      },
-    );
-    const resetTokenData = {
-      user_id: userData!.id,
-      reset_token: resetPasswordToken,
-    };
+    // Generate a 6-digit OTP code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Delete any existing reset token for this user
     await db
       .delete(resetPasswordTokensTable)
       .where(eq(resetPasswordTokensTable.user_id, userData!.id));
 
-    const userResetToken = await db
-      .insert(resetPasswordTokensTable)
-      .values(resetTokenData)
-      .returning();
+    // Insert new reset code
+    await db.insert(resetPasswordTokensTable).values({
+      user_id: userData!.id,
+      reset_token: resetCode,
+      expires_at: expiresAt,
+    });
 
-    const processedData = camelize(userResetToken[0]);
-    return processedData;
+    return resetCode;
+  }
+
+  async verifyResetCode(email: string, code: string): Promise<boolean> {
+    const user = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1);
+
+    if (!user[0]) return false;
+
+    const tokenRecord = await db
+      .select()
+      .from(resetPasswordTokensTable)
+      .where(eq(resetPasswordTokensTable.user_id, user[0].id))
+      .limit(1);
+
+    if (!tokenRecord[0]) return false;
+    if (tokenRecord[0].reset_token !== code) return false;
+    if (new Date() > tokenRecord[0].expires_at) return false;
+
+    return true;
   }
 
   async resetPassword(email: string, password: string) {
+    const user = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1);
+
+    if (user[0]) {
+      // Delete the used reset token
+      await db
+        .delete(resetPasswordTokensTable)
+        .where(eq(resetPasswordTokensTable.user_id, user[0].id));
+    }
+
     const hashedPassword = await bcrypt.hash(password as string, 10);
     const updatedUserData = await db
       .update(usersTable)
-      .set({
-        password: hashedPassword,
-      })
+      .set({ password: hashedPassword })
       .where(eq(usersTable.email, email))
       .returning();
-    const processedData = camelize(updatedUserData[0]);
 
-    return processedData;
+    return camelize(updatedUserData[0]);
   }
 
   async getUserById(id: string) {
@@ -130,42 +153,8 @@ class UserService implements IService {
       .select()
       .from(usersTable)
       .where(eq(usersTable.id, id));
-    const processedData = camelize(userData[0]);
-
-    return processedData;
+    return camelize(userData[0]);
   }
-
-  // async getUser(id: string) {
-  //   try {
-  //     return;
-  //   } catch (error) {
-  //     throw new Error("Failed to read user");
-  //   }
-  // }
-
-  // async getUsers(data: IGetUsersFilter) {
-  //   try {
-  //     return;
-  //   } catch (error) {
-  //     throw new Error("Failed to get users");
-  //   }
-  // }
-
-  // async updateUser(id: string, data: IUpdateUser) {
-  //   try {
-  //     return;
-  //   } catch (error) {
-  //     throw new Error("Failed to update user");
-  //   }
-  // }
-
-  // async deleteUser(id: string) {
-  //   try {
-  //     return;
-  //   } catch (error) {
-  //     throw new Error("Failed to delete user");
-  //   }
-  // }
 }
 
 const userService = new UserService(db);

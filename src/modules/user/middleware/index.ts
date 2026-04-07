@@ -23,21 +23,38 @@ class UserMiddleware implements IMiddleware {
     if (!authorization) {
       return res.status(401).json({
         success: false,
-        message: "Unathorized",
+        message: "Unauthorized",
       });
     }
     const token = authorization.split(" ")[1];
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Unathorized",
+        message: "Unauthorized",
       });
     }
-    const tokenObject = GenericHelper.decryptJwt(token) as { id: string };
-    const user = await userService.getUserById(tokenObject?.id);
-    if (user) {
+    try {
+      const tokenObject = GenericHelper.decryptJwt(token) as { id: string };
+      if (!tokenObject?.id) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
+      const user = await userService.getUserById(tokenObject.id);
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
       (req as any).user = user;
       return next();
+    } catch {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
     }
   }
 
@@ -168,57 +185,34 @@ class UserMiddleware implements IMiddleware {
     next: NextFunction,
   ) {
     try {
-      const { reset_token: resetToken } = req.query as unknown as {
-        reset_token: string;
+      const { email: passedEmail, code } = req.body as {
+        email: string;
+        code: string;
       };
 
-      if (!resetToken) {
+      const email = passedEmail?.trim();
+
+      if (!email || !code) {
         return res.status(400).json({
           success: false,
-          message: "Reset token is missing!",
+          message: "Email and reset code are required!",
         });
       }
 
-      try {
-        const decodedToken = jwt.verify(resetToken, envs.JWT_SECRET) as {
-          email: string;
-        };
-
-        const email = decodedToken?.email;
-        const user = await db
-          .select()
-          .from(usersTable)
-          .where(eq(usersTable.email, email))
-          .limit(1);
-
-        (req as any).userEmail = email.trim();
-
-        if (!user[0]) {
-          return res.status(400).json({
-            success: false,
-            message: `Password reset failed!`,
-          });
-        }
-      } catch (error: any) {
+      const isValid = await userService.verifyResetCode(email, code.trim());
+      if (!isValid) {
         return res.status(400).json({
           success: false,
-          message: `Failed to confirm password reset token: ${error.message}`,
-          error: {
-            message: error.message,
-            stack: error.stack,
-          },
+          message: "Invalid or expired reset code!",
         });
       }
 
+      (req as any).userEmail = email;
       return next();
     } catch (error: any) {
       return res.status(500).json({
         success: false,
-        message: `Failed to confirm password reset token: ${error.message}`,
-        error: {
-          message: error.message,
-          stack: error.stack,
-        },
+        message: `Failed to confirm reset code: ${error.message}`,
       });
     }
   }
