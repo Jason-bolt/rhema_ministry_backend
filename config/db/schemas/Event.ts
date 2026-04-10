@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, json, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const eventsTable = pgTable("events", {
   id: uuid().primaryKey(),
@@ -9,6 +9,7 @@ export const eventsTable = pgTable("events", {
   description: text().notNull(),
   recurring: boolean().notNull().default(false),
   flier_url: varchar({ length: 500 }).notNull().default(""),
+  images: json("images").$type<string[]>().notNull().default([]),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });

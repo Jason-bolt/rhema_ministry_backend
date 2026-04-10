@@ -22,6 +22,7 @@ class EventService {
           description: data.description,
           recurring: data.recurring,
           flier_url: data.flierUrl ?? "",
+          images: data.images ?? [],
         })
         .returning();
 
@@ -62,6 +63,7 @@ class EventService {
           description: data.description,
           recurring: data.recurring,
           flier_url: data.flierUrl ?? "",
+          images: data.images ?? [],
         })
         .where(eq(eventsTable.id, id))
         .returning();

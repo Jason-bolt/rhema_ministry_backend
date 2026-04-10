@@ -7,6 +7,7 @@ interface IEvent {
   description: string;
   recurring: boolean;
   flierUrl: string;
+  images: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -19,6 +20,7 @@ interface ICreateEvent {
   description: string;
   recurring: boolean;
   flierUrl?: string;
+  images?: string[];
 }
 
 export { IEvent, ICreateEvent };

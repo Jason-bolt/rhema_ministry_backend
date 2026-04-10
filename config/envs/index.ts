@@ -17,6 +17,9 @@ interface EnvVariables {
   ADMIN_EMAIL_ADDRESS: string;
   MAILGUN_API_KEY: string;
   MAILGUN_DOMAIN: string;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 
 const envs: EnvVariables = {
@@ -36,6 +39,9 @@ const envs: EnvVariables = {
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS || "",
   MAILGUN_API_KEY: process.env.MAILGUN_API_KEY || "",
   MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN || "",
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || "",
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || "",
 };
 
 export default envs;

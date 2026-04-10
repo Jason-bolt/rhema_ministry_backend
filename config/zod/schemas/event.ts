@@ -8,6 +8,7 @@ const eventSchema = {
   description: z.string().min(1, "Description is required"),
   recurring: z.boolean(),
   flierUrl: z.string().optional(),
+  images: z.array(z.string()).optional(),
 };
 
 export const createEventSchema = z.object(eventSchema);

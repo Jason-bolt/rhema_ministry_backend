@@ -5,6 +5,7 @@ import eventRouterV1 from "../../modules/event/route";
 import galleryRouterV1 from "../../modules/gallery/route";
 import siteTextRouterV1 from "../../modules/siteText/route";
 import generalRouterV1 from "../../modules/general/route";
+import uploadRouterV1 from "../../modules/upload/route";
 
 const v1Router = Router();
 
@@ -14,5 +15,6 @@ v1Router.use("/events", eventRouterV1);
 v1Router.use("/gallery", galleryRouterV1);
 v1Router.use("/site-texts", siteTextRouterV1);
 v1Router.use("/general", generalRouterV1);
+v1Router.use("/upload", uploadRouterV1);
 
 export default v1Router;
